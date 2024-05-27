@@ -3,7 +3,7 @@ import os
 import subprocess
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog,
-    QLineEdit, QLabel, QProgressBar, QMessageBox, QFrame, QGridLayout, QToolButton, QCheckBox
+    QLineEdit, QLabel, QProgressBar, QMessageBox, QFrame, QGridLayout, QToolButton
 )
 from PySide6.QtCore import Qt, QMimeData, QByteArray, QIODevice, QDataStream, QPoint, QRect, QSize
 from PySide6.QtGui import QPixmap, QIcon, QDrag, QPainter, QColor, QFont, QPen, QCursor
@@ -285,12 +285,11 @@ class PDFMergerApp(QWidget):
     def __init__(self):
         super().__init__()
         self.pdf_merger_logic = PDFMergerLogic()
-        self.auto_name_enabled = False
         self.initUI()
 
     def initUI(self):
         """Initializes the user interface."""
-        self.setWindowTitle('PDF Merger - PDF Reorder')
+        self.setWindowTitle('PDF Merger')
         self.setGeometry(100, 100, 600, 400)
 
         layout = QVBoxLayout()
@@ -298,27 +297,18 @@ class PDFMergerApp(QWidget):
         self.file_list = DraggableGridWidget()
         self.select_files_btn = QPushButton('Select PDF Files')
         self.select_files_btn.clicked.connect(self.select_files)
-        self.select_files_btn.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; border-radius: 5px; }")
 
         self.clear_all_btn = QPushButton('Clear All PDFs')
         self.clear_all_btn.clicked.connect(self.clear_all_pdfs)
-        self.clear_all_btn.setStyleSheet("QPushButton { background-color: #f44336; color: white; border-radius: 5px; }")
 
         self.output_label = QLabel('Output File Name:')
         self.output_filename = QLineEdit()
-        self.output_filename.setStyleSheet("QLineEdit { padding: 5px; border: 1px solid gray; border-radius: 5px; }")
-
-        self.auto_name_checkbox = QCheckBox('Automatically name the output file')
-        self.auto_name_checkbox.setStyleSheet("QCheckBox { margin-top: 10px; }")
-        self.auto_name_checkbox.stateChanged.connect(self.toggle_auto_name)
 
         self.merge_btn = QPushButton('Merge PDFs')
         self.merge_btn.clicked.connect(self.merge_pdfs)
-        self.merge_btn.setStyleSheet("QPushButton { background-color: #008CBA; color: white; border-radius: 5px; }")
 
         self.progress_bar = QProgressBar()
         self.progress_bar.setValue(0)
-        self.progress_bar.setStyleSheet("QProgressBar { border: 1px solid gray; border-radius: 5px; }")
 
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.select_files_btn)
@@ -331,35 +321,10 @@ class PDFMergerApp(QWidget):
         layout.addLayout(button_layout)
         layout.addWidget(self.file_list)
         layout.addLayout(output_layout)
-        layout.addWidget(self.auto_name_checkbox)
         layout.addWidget(self.merge_btn)
         layout.addWidget(self.progress_bar)
 
         self.setLayout(layout)
-
-    def toggle_auto_name(self, state):
-        """Toggles the state of the output filename input based on the checkbox."""
-        self.auto_name_enabled = state == Qt.Checked
-        self.output_filename.setEnabled(not self.auto_name_enabled)
-        if self.auto_name_enabled:
-            self.output_filename.setText(self.generate_output_filename())
-            self.output_filename.setStyleSheet("QLineEdit { background-color: #d3d3d3; color: #6c6c6c; cursor: not-allowed; }")
-        else:
-            self.output_filename.clear()
-            self.output_filename.setStyleSheet("QLineEdit { padding: 5px; border: 1px solid gray; border-radius: 5px; }")
-
-    def generate_output_filename(self):
-        """Generates a unique output filename."""
-        base_name = "Merged_Output"
-        extension = ".pdf"
-        counter = 1
-        output_file = f"{base_name}{extension}"
-
-        while os.path.exists(output_file):
-            output_file = f"{base_name}_{counter:03d}{extension}"
-            counter += 1
-
-        return output_file
 
     def select_files(self):
         """Opens a file dialog to select PDF files and adds them to the grid."""
